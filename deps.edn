@@ -1,0 +1,26 @@
+{:paths ["src" "resources"]
+ :deps  {com.datomic/ion                 {:mvn/version "0.9.26"}
+         io.pedestal/pedestal.service    {:mvn/version "0.5.4"
+                                          :exclusions  [com.cognitect/transit-clj
+                                                        org.clojure/tools.analyzer.jvm
+                                                        org.clojure/core.async]}
+         io.pedestal/pedestal.ions       {:local/root "../.."}
+         io.pedestal/pedestal.log        {:mvn/version "0.5.4"
+                                          :exclusions  [org.slf4j/slf4j-api]}
+         org.clojure/clojure             {:mvn/version "1.9.0"}
+         javax.servlet/javax.servlet-api {:mvn/version "3.1.0"}}
+
+ :mvn/repos {"datomic-cloud" {:url "s3://datomic-releases-1fc2183a/maven/releases"}}
+
+ :aliases
+ {:log   {:extra-paths ["config"]
+          :extra-deps  {ch.qos.logback/logback-classic {:mvn/version "1.2.3"
+                                                        :exclusions  [org.slf4j/slf4j-api]}
+                        org.slf4j/slf4j-api            {:mvn/version "1.7.14"}
+                        org.slf4j/jul-to-slf4j         {:mvn/version "1.7.14"}
+                        org.slf4j/jcl-over-slf4j       {:mvn/version "1.7.14"}
+                        org.slf4j/log4j-over-slf4j     {:mvn/version "1.7.14"}}}
+  :dev   {:extra-deps {io.pedestal/pedestal.service-tools {:mvn/version "0.5.4"}
+                       com.datomic/client-cloud           {:mvn/version "0.8.56"}
+                       com.datomic/ion-dev                {:mvn/version "0.9.176"
+                                                           :exclusions  [org.slf4j/slf4j-nop]}}}}}
