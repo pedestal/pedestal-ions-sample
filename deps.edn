@@ -20,7 +20,10 @@
                         org.slf4j/jul-to-slf4j         {:mvn/version "1.7.14"}
                         org.slf4j/jcl-over-slf4j       {:mvn/version "1.7.14"}
                         org.slf4j/log4j-over-slf4j     {:mvn/version "1.7.14"}}}
-  :dev   {:extra-deps {io.pedestal/pedestal.service-tools {:mvn/version "0.5.4"}
-                       com.datomic/client-cloud           {:mvn/version "0.8.63"}
-                       com.datomic/ion-dev                {:mvn/version "0.9.176"
-                                                           :exclusions  [org.slf4j/slf4j-nop]}}}}}
+  :dev   {:extra-deps  {io.pedestal/pedestal.service-tools {:mvn/version "0.5.4"}
+                        io.pedestal/pedestal.jetty         {:mvn/version "0.5.4"}
+                        com.datomic/client-cloud           {:mvn/version "0.8.63"}
+                        com.datomic/ion-dev                {:mvn/version "0.9.176"
+                                                            :exclusions  [org.slf4j/slf4j-nop]}}}
+  :jetty {:extra-paths ["dev"]
+          :extra-deps  {io.pedestal/pedestal.jetty         {:mvn/version "0.5.4"}}}}}

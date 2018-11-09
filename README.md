@@ -277,6 +277,38 @@ Make some requests:
     ...
     "[{\"pet-store.pet/id\":2,\"pet-store.pet/name\":\"Dante\",\"pet-store.pet/tag\":\"cat\"},{\"pet-store.pet/id\":1,\"pet-store.pet/name\":\"Yogi\",\"pet-store.pet/tag\":\"dog\"}]"
 
+### Hosting the service locally
+
+You may prefer interacting with a locally running service instead of
+the ion handler. You can do so by configuring the service to use jetty
+instead of the ion chain provider. The `ion-sample.server`
+namespace demonstrates this. Keep in mind that you still need to have
+the Datomic SOCKS proxy running to access Datomic Cloud!
+
+The `ion-sample.server` source is found in the `dev` source
+directory. To include it and the `pedestal.jetty` dependency, start up
+a repl with the `:jetty` alias appended as follows:
+
+    $ clj -Adev:log:jetty
+
+Then startup a server:
+
+    user=> (require '[ion-sample.server :as server])
+    user=> (def pet-service (server/run-dev 9091))
+
+You can now interact with your server via `curl`:
+
+    $ curl -X GET http://localhost:9091/pets
+
+which returns:
+
+    [{"pet-store.pet/id":2,"pet-store.pet/name":"Dante","pet-store.pet/tag":"cat"},{"pet-store.pet/id":1,"pet-store.pet/name":"Yogi","pet-store.pet/tag":"dog"}]%
+
+Once you are done interacting with the service, you can stop it as
+follows:
+
+    $ (server/stop pet-service)
+
 ## Cleanup
 
 Follow the Datomic Cloud [Deleting a System](https://docs.datomic.com/cloud/operation/deleting.html)
