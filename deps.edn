@@ -4,7 +4,7 @@
                                           :exclusions  [com.cognitect/transit-clj
                                                         org.clojure/tools.analyzer.jvm
                                                         org.clojure/core.async]}
-         io.pedestal/pedestal.ions       {:local/root "../pedestal.ions"}
+         io.pedestal/pedestal.ions       {:mvn/version "0.1.0"}
          io.pedestal/pedestal.log        {:mvn/version "0.5.4"
                                           :exclusions  [org.slf4j/slf4j-api]}
          org.clojure/clojure             {:mvn/version "1.9.0"}
