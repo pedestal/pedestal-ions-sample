@@ -1,7 +1,7 @@
-(ns ion-provider.ion
+(ns ion-sample.ion
   (:require [datomic.ion.lambda.api-gateway :as apig]
             [io.pedestal.http :as http]
-            [ion-provider.service :as service]))
+            [ion-sample.service :as service]))
 
 (defn handler
   "Ion handler"

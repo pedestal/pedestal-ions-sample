@@ -1,4 +1,4 @@
-(ns ion-provider.datomic
+(ns ion-sample.datomic
   (:require [datomic.client.api :as d]))
 
 (def petstore-schema

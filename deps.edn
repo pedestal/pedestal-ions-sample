@@ -4,7 +4,7 @@
                                           :exclusions  [com.cognitect/transit-clj
                                                         org.clojure/tools.analyzer.jvm
                                                         org.clojure/core.async]}
-         io.pedestal/pedestal.ions       {:local/root "../.."}
+         io.pedestal/pedestal.ions       {:local/root "../pedestal.ions"}
          io.pedestal/pedestal.log        {:mvn/version "0.5.4"
                                           :exclusions  [org.slf4j/slf4j-api]}
          org.clojure/clojure             {:mvn/version "1.9.0"}
@@ -21,6 +21,6 @@
                         org.slf4j/jcl-over-slf4j       {:mvn/version "1.7.14"}
                         org.slf4j/log4j-over-slf4j     {:mvn/version "1.7.14"}}}
   :dev   {:extra-deps {io.pedestal/pedestal.service-tools {:mvn/version "0.5.4"}
-                       com.datomic/client-cloud           {:mvn/version "0.8.56"}
+                       com.datomic/client-cloud           {:mvn/version "0.8.63"}
                        com.datomic/ion-dev                {:mvn/version "0.9.176"
                                                            :exclusions  [org.slf4j/slf4j-nop]}}}}}

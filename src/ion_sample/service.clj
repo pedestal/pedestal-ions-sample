@@ -1,11 +1,11 @@
-(ns ion-provider.service
+(ns ion-sample.service
   (:require [io.pedestal.http :as http]
             [io.pedestal.log :as log]
             [io.pedestal.http.route :as route]
             [io.pedestal.http.body-params :as body-params]
             [io.pedestal.interceptor :as interceptor]
             [io.pedestal.ions :as provider]
-            [ion-provider.datomic]
+            [ion-sample.datomic]
             [ring.util.response :as ring-resp]
             [datomic.client.api :as d]))
 
@@ -39,7 +39,7 @@
   (let [client (get-client app-name)]
     (d/create-database client {:db-name db-name})
     (let [conn (d/connect client {:db-name db-name})]
-      (ion-provider.datomic/load-dataset conn)
+      (ion-sample.datomic/load-dataset conn)
       conn)))
 
 (defn- get-in-or-throw
@@ -125,7 +125,8 @@
 
 (def common-interceptors [(body-params/body-params) http/json-body])
 
-(def app-interceptors (into [datomic-interceptor] common-interceptors))
+(def app-interceptors
+  (into [(io.pedestal.ions/datomic-params-interceptor) datomic-interceptor] common-interceptors))
 
 ;; Tabular routes
 (def routes #{["/" :get (conj common-interceptors `home)]
