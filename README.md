@@ -1,13 +1,16 @@
 # Pet store service
 
-A simple pet store service implemented as a Datomic Ion. Consumes and
-emits JSON and supports CRUD operation on Pet resources.
+A simple pet store service implemented as a Datomic Ion using the
+[pedestal.ions](https://github.com/pedestal/pedestal.ions) chain
+provider. Consumes and emits JSON and supports CRUD operation on Pet
+resources.
 
 Demonstrates:
 
 - Ionizing a Pedestal service.
 - Using Ion Parameters.
 - Transacting schema.
+- Running the service locally via Jetty.
 
 ## Prerequisites
 
