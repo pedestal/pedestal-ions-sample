@@ -6,7 +6,8 @@
                                                         org.clojure/tools.analyzer.jvm
                                                         org.clojure/core.async]}
          io.pedestal/pedestal.ions       {:git/url "https://github.com/pedestal/pedestal.ions.git"
-                                          :sha "e4748d9a292d348fb31fe1a36b10bf0981598650"}
+                                          :sha     "ac9a0ddc11521c31e4d617dc10cb912f181e7cae"
+                                          :tag     "0.1.1"}
          io.pedestal/pedestal.log        {:mvn/version "0.5.5"
                                           :exclusions  [org.slf4j/slf4j-api]}
          javax.servlet/javax.servlet-api {:mvn/version "3.1.0"}}
