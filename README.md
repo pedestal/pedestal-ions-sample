@@ -80,7 +80,7 @@ Manager Parameter Store. This can be done as follows:
 To push the project to your Datomic Cloud environment, execute the
 following command from the root directory of the sample project:
 
-`clojure -A:dev -m datomic.ion.dev '{:op :push"}'`
+`clojure -A:dev -m datomic.ion.dev '{:op :push}'`
 
 You will need to add a `:uname` key if you have made changes to the
 sample and they have not been committed to Git.
