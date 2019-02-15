@@ -62,7 +62,7 @@ Where `$DeploymentGroup` is the name of your Ion deployment group (see
 ### Parameters
 
 Pedestal Ions provides access to Datomic Ion parameters. Refer to the
-[README](https://github.com/cognitect-labs/pedestal.ions/blob/master/README.md#parameters)
+[README](https://github.com/pedestal/pedestal.ions#parameters)
 for details.
 
 The values of the `:io.pedestal.ions/app-info` and
