@@ -252,8 +252,8 @@ Start a repl and connect to it:
 
 Instantiate a handler so you can interact with the app:
 
-    user=> (require '[ion-provider.ion :as ion]
-                    '[ion-provider.service :as service])
+    user=> (require '[ion-sample.ion :as ion]
+                    '[ion-sample.service :as service])
 
     user=> (def h (ion/handler service/service))
 
