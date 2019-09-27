@@ -1,16 +1,22 @@
 {:paths ["src" "resources"]
- :deps  {org.clojure/clojure             {:mvn/version "1.9.0"}
-         com.datomic/ion                 {:mvn/version "0.9.28"}
-         io.pedestal/pedestal.service    {:mvn/version "0.5.5"
+ :deps  {org.clojure/clojure             {:mvn/version "1.10.0"}
+         com.datomic/ion                 {:mvn/version "0.9.35"}
+         io.pedestal/pedestal.service    {:mvn/version "0.5.7"
                                           :exclusions  [com.cognitect/transit-clj
                                                         org.clojure/tools.analyzer.jvm
                                                         org.clojure/core.async]}
          io.pedestal/pedestal.ions       {:git/url "https://github.com/pedestal/pedestal.ions.git"
-                                          :sha     "ac9a0ddc11521c31e4d617dc10cb912f181e7cae"
-                                          :tag     "0.1.1"}
-         io.pedestal/pedestal.log        {:mvn/version "0.5.5"
+                                          :sha     "28530aa109bc00034bd3067b25d17078c270ee1b"
+                                          :tag     "0.1.2"}
+         io.pedestal/pedestal.log        {:mvn/version "0.5.7"
                                           :exclusions  [org.slf4j/slf4j-api]}
-         javax.servlet/javax.servlet-api {:mvn/version "3.1.0"}}
+         javax.servlet/javax.servlet-api {:mvn/version "3.1.0"}
+
+         ;; pinning the deps reported by ion deploy as 'dependency conflicts'
+         commons-codec/commons-codec    {:mvn/version "1.10"},
+         org.clojure/tools.analyzer.jvm {:mvn/version "0.7.0"},
+         org.clojure/tools.reader       {:mvn/version "1.0.0-beta4"},
+         org.clojure/core.async         {:mvn/version "0.3.442"}}
 
  :mvn/repos {"datomic-cloud" {:url "s3://datomic-releases-1fc2183a/maven/releases"}}
 
@@ -18,14 +24,14 @@
  {:log   {:extra-paths ["config"]
           :extra-deps  {ch.qos.logback/logback-classic {:mvn/version "1.2.3"
                                                         :exclusions  [org.slf4j/slf4j-api]}
-                        org.slf4j/slf4j-api            {:mvn/version "1.7.14"}
-                        org.slf4j/jul-to-slf4j         {:mvn/version "1.7.14"}
-                        org.slf4j/jcl-over-slf4j       {:mvn/version "1.7.14"}
-                        org.slf4j/log4j-over-slf4j     {:mvn/version "1.7.14"}}}
-  :dev   {:extra-deps  {io.pedestal/pedestal.service-tools {:mvn/version "0.5.5"}
-                        io.pedestal/pedestal.jetty         {:mvn/version "0.5.5"}
-                        com.datomic/client-cloud           {:mvn/version "0.8.71"}
-                        com.datomic/ion-dev                {:mvn/version "0.9.186"
+                        org.slf4j/slf4j-api            {:mvn/version "1.7.28"}
+                        org.slf4j/jul-to-slf4j         {:mvn/version "1.7.28"}
+                        org.slf4j/jcl-over-slf4j       {:mvn/version "1.7.28"}
+                        org.slf4j/log4j-over-slf4j     {:mvn/version "1.7.28"}}}
+  :dev   {:extra-deps  {io.pedestal/pedestal.service-tools {:mvn/version "0.5.7"}
+                        io.pedestal/pedestal.jetty         {:mvn/version "0.5.7"}
+                        com.datomic/client-cloud           {:mvn/version "0.8.78"}
+                        com.datomic/ion-dev                {:mvn/version "0.9.234"
                                                             :exclusions  [org.slf4j/slf4j-nop]}}}
   :jetty {:extra-paths ["dev"]
-          :extra-deps  {io.pedestal/pedestal.jetty {:mvn/version "0.5.5"}}}}}
+          :extra-deps  {io.pedestal/pedestal.jetty {:mvn/version "0.5.7"}}}}}
