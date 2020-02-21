@@ -33,6 +33,10 @@ guide to provision your Datomic Cloud environment. Be sure to choose
 the _Solo_ Fulfillment option. This sample assumes the __Stack Name__ and __Application Name__ to be the same.
 i.e. in our case `ion-pet-service`. If you have a different `Application Name`(if you left it blank, it's the same as the `Stack Name`), replace `ion-pet-service` in ` ./resources/datomic/ion-config.edn` with your `Application Name`. 
 
+### Installing the ion-dev tools
+
+Follow the Datomic Cloud [documentation](https://docs.datomic.com/cloud/operation/howto.html#ion-dev) for installing the ion-dev tools.
+
 ### Local Development
 
 You will need to export the following environment variables in order
