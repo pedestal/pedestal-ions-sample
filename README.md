@@ -33,11 +33,6 @@ guide to provision your Datomic Cloud environment. Be sure to choose
 the _Solo_ Fulfillment option. This sample assumes the __Stack Name__ and __Application Name__ to be the same.
 i.e. in our case `ion-pet-service`. If you have a different `Application Name`(if you left it blank, it's the same as the `Stack Name`), replace `ion-pet-service` in ` ./resources/datomic/ion-config.edn` with your `Application Name`. 
 
-Once your Datomic Cloud environment is provisioned, continue on to the [Configuring
-Access](https://docs.datomic.com/cloud/getting-started/configuring-access.html)
-documentation and, finally, the [Getting
-Started](https://docs.datomic.com/cloud/getting-started/connecting.html) guide.
-
 ### Local Development
 
 You will need to export the following environment variables in order

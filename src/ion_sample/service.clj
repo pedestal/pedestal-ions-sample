@@ -42,15 +42,16 @@
   [request]
   (ring-resp/response "Hello World!"))
 
-(defn- get-connection
+(def get-connection
   "Returns a datomic connection.
   Ensures the db is created and schema is loaded."
-  [app-name db-name]
-  (let [client (get-client app-name)]
-    (d/create-database client {:db-name db-name})
-    (let [conn (d/connect client {:db-name db-name})]
-      (ion-sample.datomic/load-dataset conn)
-      conn)))
+  (memoize
+   (fn [app-name db-name]
+     (let [client (get-client app-name)]
+       (d/create-database client {:db-name db-name})
+       (let [conn (d/connect client {:db-name db-name})]
+         (ion-sample.datomic/load-dataset conn)
+         conn)))))
 
 (defn- get-in-or-throw
   [m ks]
