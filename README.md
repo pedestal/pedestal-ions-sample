@@ -79,7 +79,7 @@ Manager Parameter Store. This can be done as follows:
 To push the project to your Datomic Cloud environment, execute the
 following command from the root directory of the sample project:
 
-`clojure -A:dev -m datomic.ion.dev '{:op :push}'`
+`clojure -A:ion-dev '{:op :push}'`
 
 You will need to add a `:uname` key if you have made changes to the
 sample and they have not been committed to Git.
@@ -96,6 +96,23 @@ seconds you should see a successful result that looks like this:
 ``` clojure
 {:deploy-status "SUCCEEDED", :code-deploy-status "SUCCEEDED"}
 ```
+
+### Database life cycle
+
+The database life cycle will be different than our service ion life
+cycle. Therefore, we'll be performing database life cycle tasks
+explicitly, when needed. When we first deploy our pedestal ion, we'll
+need to initialize the database prior to using it. To do this, we'll
+use the database initialization ion named `ensure-db` which was deployed along with the pedestal
+ion. The `ensure-db` ion will install the schema and load seed
+data. We'll invoke it using the aws cli.
+
+``` shell
+$  aws lambda invoke --function-name [DEPLOYMENT GROUP]-ensure-db out.txt --region [AWS REGION]
+```
+
+When run for that first time, the `out.txt` file should contain the transaction results of loading the seed data.
+All subsequent executions will return `nil`.
 
 ### Provisioning API Gateway
 

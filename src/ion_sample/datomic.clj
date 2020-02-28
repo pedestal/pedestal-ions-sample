@@ -9,7 +9,8 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 (ns ion-sample.datomic
-  (:require [datomic.client.api :as d]))
+  (:require [datomic.client.api :as d]
+            [ion-sample.retry :as retry]))
 
 (def petstore-schema
   [{:db/ident       :pet-store.pet/id
@@ -39,16 +40,28 @@
   (contains? (d/pull db {:eid ident :selector [:db/ident]})
              :db/ident))
 
-(defn- data-loaded?
+(defn- fresh-db?
   [db]
-  (has-ident? db :pet-store.pet/id))
+  (not (has-ident? db :pet-store.pet/id)))
 
 (defn load-dataset
+  "Given `conn`, transacts the petstore schema and seed data if necessary.
+  Truthy if changes were applied."
   [conn]
   (let [db (d/db conn)]
-    (if (data-loaded? db)
-      :already-loaded
+    (when (fresh-db? db)
       (let [xact #(d/transact conn {:tx-data %})]
         (xact petstore-schema)
-        (xact seed-data)
-        :loaded))))
+        (xact seed-data)))))
+
+(defn ensure-db
+  "Given `client` and `db-name`, ensures the db is created and
+  initialized as per the fn which `setup-sym` resolves to. This a unary fn taking
+  a Datomic connection."
+  ([client db-name setup-sym]
+   (let [setup-fn (requiring-resolve setup-sym)
+         _        (d/create-database client {:db-name db-name})
+         conn     (d/connect client {:db-name db-name})]
+     (if setup-fn
+       (setup-fn conn)
+       (throw (ex-info (format "Unable to resolve %s" setup-sym) {}))))))

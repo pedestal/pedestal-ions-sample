@@ -11,6 +11,11 @@
 (ns ion-sample.ion
   (:require [datomic.ion.lambda.api-gateway :as apig]
             [io.pedestal.http :as http]
+            [io.pedestal.interceptor :as interceptor]
+            [io.pedestal.interceptor.chain :as chain]
+            [io.pedestal.ions :as provider]
+            [ion-sample.datomic]
+            [ion-sample.retry :as retry]
             [ion-sample.service :as service]))
 
 (defn handler
@@ -20,9 +25,34 @@
       http/default-interceptors
       http/create-provider))
 
-(def app (apig/ionize (handler service/service)))
+(def app
+  "Application ion."
+  (apig/ionize (handler service/service)))
+
+(def ensure-db-interceptor
+  "Interceptor for initializing the application's Datomic database."
+  (interceptor/interceptor
+   {:name ::ensure-db-interceptor
+    :enter (fn [ctx]
+             (let [client  (::service/client ctx)
+                   db-name (get-in ctx [::provider/params :db-name])]
+               (assoc ctx
+                      ::ensure-db-result
+                      (retry/with-retry #(ion-sample.datomic/ensure-db client db-name 'ion-sample.datomic/load-dataset)))))}))
+
+(defn ensure-db
+  "Datomic database initialization ion."
+  [_]
+  (let [ctx (chain/execute-only {} :enter [(provider/datomic-params-interceptor)
+                                           service/datomic-param-validation-interceptor
+                                           service/datomic-client-interceptor
+                                           ensure-db-interceptor])]
+    (pr-str (::ensure-db-result ctx))))
 
 (comment
+
+ ;; ensure db
+ (ensure-db nil)
 
  (def h (handler service/service))
 

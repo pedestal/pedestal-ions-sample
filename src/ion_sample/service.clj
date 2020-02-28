@@ -15,23 +15,73 @@
             [io.pedestal.http.body-params :as body-params]
             [io.pedestal.interceptor :as interceptor]
             [io.pedestal.ions :as provider]
-            [ion-sample.datomic]
+            [ion-sample.retry :as retry]
             [ring.util.response :as ring-resp]
             [datomic.client.api :as d]))
 
+;;
+;; Datomic utils
+;;
 (def get-client
-  "This function will return a local implementation of the client
-  interface when run on a Datomic compute node. If you want to call
-  locally, fill in the correct values in the map."
-  (memoize (fn [app-name]
-             (let [region (System/getenv "AWS_REGION")]
-               (d/client {:server-type :ion
-                          :region      region
-                          :system      app-name
-                          :query-group app-name
-                          :endpoint    (format "http://entry.%s.%s.datomic.net:8182/" app-name region)
-                          :proxy-port  8182})))))
+  "Given `app-name` and `region`, the AWS Region, returns a shared Datom client."
+  (memoize (fn [app-name region]
+             (d/client {:server-type :ion
+                        :region      region
+                        :system      app-name
+                        :query-group app-name
+                        :endpoint    (format "http://entry.%s.%s.datomic.net:8182/" app-name region)
+                        :proxy-port  8182}))))
 
+(def get-connection
+  "Given `client`, a Datomic client,  and `db-name`, returns a datomic connection.
+  Retries on failure."
+  (fn [client db-name]
+    (retry/with-retry #(d/connect client {:db-name db-name}))))
+
+;;
+;; Interceptors
+;;
+(def datomic-param-validation-interceptor
+  (interceptor/interceptor
+   {:name ::datomic-param-validation-interceptor
+    :enter (fn [ctx]
+             (and (get-in ctx [::provider/app-info :app-name])
+                  (get-in ctx [::provider/params :db-name])
+                  ctx))}))
+
+(def datomic-client-interceptor
+  (interceptor/interceptor
+   {:name  ::datomic-client-interceptor
+    :enter (fn [ctx]
+             (let [app-name (get-in ctx [::provider/app-info :app-name])
+                   region   (System/getenv "AWS_REGION")
+                   client   (get-client app-name region)]
+               (assoc ctx ::client client)))}))
+
+(def datomic-conn-db-interceptor
+  (interceptor/interceptor
+   {:name  ::datomic-conn-db-interceptor
+    :enter (fn [ctx]
+             (let [db-name  (get-in ctx [::provider/params :db-name])
+                   conn     (get-connection (::client ctx) db-name)
+                   m        {::conn conn
+                             ::db   (d/db conn)}]
+               (-> ctx
+                   (merge m)
+                   (update-in [:request] merge m))))}))
+
+(def pet-interceptor
+  (interceptor/interceptor
+   {:name  ::pet-interceptor
+    :enter (fn [ctx]
+             (let [db (::db ctx)
+                   id (long (Integer/valueOf (or (get-in ctx [:request :path-params :id])
+                                                 (get-in ctx [:request :json-params :id]))))
+                   e  (d/pull db '[*] [:pet-store.pet/id id])]
+               (assoc-in ctx [:request ::pet] (dissoc e :db/id))))}))
+
+;; Handlers
+;;
 (defn about
   [request]
   (ring-resp/response (format "Clojure %s - served from %s"
@@ -42,38 +92,6 @@
   [request]
   (ring-resp/response "Hello World!"))
 
-(def get-connection
-  "Returns a datomic connection.
-  Ensures the db is created and schema is loaded."
-  (memoize
-   (fn [app-name db-name]
-     (let [client (get-client app-name)]
-       (d/create-database client {:db-name db-name})
-       (let [conn (d/connect client {:db-name db-name})]
-         (ion-sample.datomic/load-dataset conn)
-         conn)))))
-
-(defn- get-in-or-throw
-  [m ks]
-  (if-let [v (get-in m ks)]
-    v
-    (let [msg (format "Value not found for keys %s" ks)]
-      (log/error :msg msg :keys ks :m m)
-      (throw (ex-info msg {})))))
-
-(def datomic-interceptor
-  (interceptor/interceptor
-   {:name ::datomic-interceptor
-    :enter (fn [ctx]
-             (let [app-name (get-in-or-throw ctx [::provider/app-info :app-name])
-                   db-name (get-in-or-throw ctx [::provider/params :db-name])
-                   conn (get-connection app-name db-name)
-                   m    {::conn conn
-                         ::db   (d/db conn)}]
-               (-> ctx
-                   (merge m)
-                   (update-in [:request] merge m))))}))
-
 (defn pets
   [request]
   (let [db (::db request)]
@@ -82,16 +100,6 @@
           (d/q '[:find (pull ?e [*])
                  :where [?e :pet-store.pet/id]]
                db)))))
-
-(def pet-interceptor
-  (interceptor/interceptor
-   {:name ::pet-interceptor
-    :enter (fn [ctx]
-             (let [db (::db ctx)
-                   id (long (Integer/valueOf (or (get-in ctx [:request :path-params :id])
-                                                 (get-in ctx [:request :json-params :id]))))
-                   e  (d/pull db '[*] [:pet-store.pet/id id])]
-               (assoc-in ctx [:request ::pet] (dissoc e :db/id))))}))
 
 (defn get-pet
   [request]
@@ -134,12 +142,18 @@
       (d/transact conn {:tx-data [[:db/retractEntity [:pet-store.pet/id (:pet-store.pet/id pet)]]]})
       (ring-resp/status (ring-resp/response "No Content.") 204))))
 
+;;
+;; Routing
+;;
 (def common-interceptors [(body-params/body-params) http/json-body])
 
 (def app-interceptors
-  (into [(io.pedestal.ions/datomic-params-interceptor) datomic-interceptor] common-interceptors))
+  (into [(io.pedestal.ions/datomic-params-interceptor)
+         datomic-param-validation-interceptor
+         datomic-client-interceptor
+         datomic-conn-db-interceptor]
+        common-interceptors))
 
-;; Tabular routes
 (def routes #{["/" :get (conj common-interceptors `home)]
               ["/about" :get (conj common-interceptors `about)]
               ["/pets" :get (conj app-interceptors `pets)]
@@ -148,6 +162,9 @@
               ["/pet/:id" :put (into app-interceptors [pet-interceptor `update-pet])]
               ["/pet/:id" :delete (into app-interceptors [pet-interceptor `remove-pet])]})
 
+;;
+;; Service
+;;
 ;; See http/default-interceptors for additional options you can configure
 (def service {;; You can bring your own non-default interceptors. Make
               ;; sure you include routing and set it up right for

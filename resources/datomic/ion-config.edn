@@ -1,3 +1,4 @@
 {:allow    [ion-sample.ion/app]
- :lambdas  {:app {:fn ion-sample.ion/app :description "Exploring Ions with Pedestal"}}
+ :lambdas  {:app       {:fn ion-sample.ion/app :description "Exploring Ions with Pedestal"}
+            :ensure-db {:fn ion-sample.ion/ensure-db :description "Initializes the application's Datomic database."}}
  :app-name "ion-pet-service"}
