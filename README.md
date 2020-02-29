@@ -108,7 +108,7 @@ service ion life cycle, it is best to keep operations which affect them
 separate.
 
 This sample includes the ion, `ensure-db` for initializing the Datomic
-database which our pedestal service ion is dependent on. The
+database which the pedestal service ion depends on. The
 `ensure-db` ion will create the database, install the pet store schema
 and, in the case of this sample, load seed data. This ion was deployed
 along with our pedestal service ion because it is
