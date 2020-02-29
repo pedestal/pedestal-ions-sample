@@ -35,7 +35,11 @@ i.e. in our case `ion-pet-service`. If you have a different `Application Name`(i
 
 ### Installing the ion-dev tools
 
-Follow the Datomic Cloud [documentation](https://docs.datomic.com/cloud/operation/howto.html#ion-dev) for installing the ion-dev tools.
+Follow the Datomic Cloud
+[documentation](https://docs.datomic.com/cloud/operation/howto.html#ion-dev)
+for installing the ion-dev tools. For the rest of these instructions,
+We'll assume that an `ion-dev` is added to your
+`$HOME/.clojure/deps.edn` during ion-dev tool installation.
 
 ### Local Development
 
@@ -97,22 +101,30 @@ seconds you should see a successful result that looks like this:
 {:deploy-status "SUCCEEDED", :code-deploy-status "SUCCEEDED"}
 ```
 
-### Database life cycle
+### Database life cycle management
 
-The database life cycle will be different than our service ion life
-cycle. Therefore, we'll be performing database life cycle tasks
-explicitly, when needed. When we first deploy our pedestal ion, we'll
-need to initialize the database prior to using it. To do this, we'll
-use the database initialization ion named `ensure-db` which was deployed along with the pedestal
-ion. The `ensure-db` ion will install the schema and load seed
-data. We'll invoke it using the aws cli.
+Since the database life cycle will be different than the pedestal
+service ion life cycle, it is best to keep operations which affect them
+separate.
+
+This sample includes the ion, `ensure-db` for initializing the Datomic
+database which our pedestal service ion is dependent on. The
+`ensure-db` ion will create the database, install the pet store schema
+and, in the case of this sample, load seed data. This ion was deployed
+along with our pedestal service ion because it is
+referenced in the `:lambdas` section of the ion config resource
+[file](./resources/datomic/ion-config.edn).
+
+To initialize the database, invoke the `ensure-db` ion using the aws cli:
 
 ``` shell
 $  aws lambda invoke --function-name [DEPLOYMENT GROUP]-ensure-db out.txt --region [AWS REGION]
 ```
 
-When run for that first time, the `out.txt` file should contain the transaction results of loading the seed data.
-All subsequent executions will return `nil`.
+When invoked for the first time, the `out.txt` file should contain the
+transaction results of loading the seed data.  Since it is idempotent,
+all subsequent executions will return `nil` as no transactions will be
+applied.
 
 ### Provisioning API Gateway
 
